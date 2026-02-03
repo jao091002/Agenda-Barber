@@ -4,46 +4,194 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Escolher Horário</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(145deg, #0b0b0b, #141414);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    #app {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    #summary {
+      background: #1a1a1a;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border-left: 4px solid #00c853;
+    }
+
+    #slots {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 12px;
+    }
+
+    .slot {
+      padding: 12px 0;
+      background: #242424;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .slot:hover {
+      background: #333;
+      transform: translateY(-2px);
+    }
+
+    .slot.selected {
+      background: #00c853;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .slot:disabled {
+      background: #444;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #confirmBox {
+      margin-top: 30px;
+      text-align: center;
+      display: none;
+    }
+
+    #confirmBox p {
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    #confirmBtn {
+      padding: 14px 24px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      background: #00c853;
+      color: #000;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    #confirmBtn:hover {
+      background: #00e676;
+    }
+
+    /* TELA FINAL */
+    #successScreen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(145deg, #0a0a0a, #101010);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      z-index: 999;
+    }
+
+    .success-box {
+      background: #161616;
+      padding: 40px 30px;
+      border-radius: 16px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 0 40px rgba(0,0,0,0.7);
+      animation: pop 0.4s ease;
+    }
+
+    .success-box h2 {
+      color: #00c853;
+      margin-bottom: 10px;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+
+    .success-box p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .check {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+
+    @keyframes pop {
+      from {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
 </head>
 <body>
+
+<div id="app">
   <h1>Escolher Horário</h1>
+
   <div id="summary"></div>
   <div id="slots"></div>
 
-  <script>
+  <div id="confirmBox">
+    <p id="selectedTimeText"></p>
+    <button id="confirmBtn">Confirmar Horário</button>
+  </div>
+</div>
+
+<!-- TELA DE SUCESSO -->
+<div id="successScreen">
+  <div class="success-box">
+    <div class="check">✅</div>
+    <h2>HORÁRIO MARCADO</h2>
+    <p id="finalInfo"></p>
+    <p style="margin-top:15px;font-size:14px;opacity:.7;">
+      Você será redirecionado automaticamente
+    </p>
+  </div>
+</div>
+
+<script>
   const DURATIONS = {
-    'barba': 30,
-    'corte': 30,
-    'pigmentacao': 30,
-    'sobrancelha': 5,
-    'pintar': 60,
-    'barba_e_corte': 60
+    barba: 30,
+    corte: 30,
+    pigmentacao: 30,
+    sobrancelha: 5,
+    pintar: 60,
+    barba_e_corte: 60
   };
 
   function parseQuery() {
-    const params = new URLSearchParams(location.search);
-    return params.getAll('service[]');
+    return new URLSearchParams(location.search).getAll('service[]');
   }
 
-  // Horário no formato H:MM ou HH:MM (sem zero à esquerda no H)
   function minutesToTime(m) {
-    const hh = String(Math.floor(m/60));
-    const mm = String(m%60).padStart(2,'0');
-    return hh + ':' + mm;
-  }
-
-  function timestampToTime(ts) {
-    const d = new Date(ts);
-    const hh = String(d.getHours());
-    const mm = String(d.getMinutes()).padStart(2,'0');
-    return hh + ':' + mm;
-  }
-
-  function minutesToTodayTimestamp(minutesFromMidnight) {
-    const now = new Date();
-    const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
-    const date = new Date(y, m, d, 0, 0, 0, 0);
-    return date.getTime() + minutesFromMidnight * 60000;
+    return Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0');
   }
 
   function overlaps(aStart, aLen, bStart, bLen) {
@@ -51,19 +199,7 @@
   }
 
   function loadBookings() {
-    try {
-      const raw = localStorage.getItem('bookings');
-      const arr = raw ? JSON.parse(raw) : [];
-      const now = Date.now();
-      // remover reservas que já expiraram (fim do serviço)
-      const cleaned = arr.filter(b => !b.expiresAt || b.expiresAt > now);
-      if (cleaned.length !== arr.length) {
-        localStorage.setItem('bookings', JSON.stringify(cleaned));
-      }
-      return cleaned;
-    } catch (e) {
-      return [];
-    }
+    return JSON.parse(localStorage.getItem('bookings') || '[]');
   }
 
   function saveBooking(b) {
@@ -72,84 +208,68 @@
     localStorage.setItem('bookings', JSON.stringify(arr));
   }
 
-  (function init(){
+  let selectedStart = null;
+
+  (function () {
     const services = parseQuery();
+    const summary = document.getElementById('summary');
+
     if (!services.length) {
-      document.getElementById('summary').textContent = 'Nenhum serviço selecionado. Volte e escolha ao menos um serviço.';
+      summary.textContent = 'Nenhum serviço selecionado.';
       return;
     }
 
-    const totalMin = services.reduce((sum, svc) => sum + (DURATIONS[svc] || 0), 0);
-    document.getElementById('summary').innerHTML =
-      '<strong>Serviços:</strong> ' + services.join(', ') +
-      '<br><strong>Duração total:</strong> ' + totalMin + ' min';
-
-    const startDay = 8*60; // 08:00 em minutos
-    const endDay = 18*60;  // 18:00 em minutos
-
-    // último início: garantir que o serviço termine até 18:00 e o início seja em múltiplo de 30
-    const rawLast = endDay - totalMin;
-    const lastStart = Math.floor(rawLast / 30) * 30;
-
-    const step = 30; // somente :00 e :30
+    const totalMin = services.reduce((s, v) => s + (DURATIONS[v] || 0), 0);
+    summary.innerHTML =
+      `<strong>Serviços:</strong> ${services.join(', ')}<br>
+       <strong>Duração:</strong> ${totalMin} minutos`;
 
     const bookings = loadBookings();
+    const slots = document.getElementById('slots');
 
-    const container = document.getElementById('slots');
-    container.innerHTML = '<p><strong>Horários disponíveis (inícios em :00 ou :30):</strong></p>';
-
-    let anySlot = false;
-    for (let t = startDay; t <= lastStart; t += step) {
-      let isFree = true;
-      let reservedUntilTs = null;
-
-      for (const b of bookings) {
-        if (overlaps(t, totalMin, b.start, b.duration)) {
-          isFree = false;
-          if (b.expiresAt) reservedUntilTs = b.expiresAt;
-          break;
-        }
-      }
-
+    for (let t = 8 * 60; t <= (18 * 60 - totalMin); t += 30) {
+      const free = !bookings.some(b => overlaps(t, totalMin, b.start, b.duration));
       const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.style.margin = '4px';
+      btn.className = 'slot';
+      btn.textContent = minutesToTime(t);
 
-      if (isFree) {
-        btn.textContent = minutesToTime(t);
-        btn.addEventListener('click', function(){
-          if (!confirm('Confirmar agendamento em ' + minutesToTime(t) + ' para ' + services.join(', ') + ' ?')) return;
-          const startTs = minutesToTodayTimestamp(t);
-          const endTs = minutesToTodayTimestamp(t + totalMin);
-          const booking = {
-            start: t,
-            duration: totalMin,
-            services: services,
-            created: Date.now(),
-            startTs: startTs,
-            expiresAt: endTs // ficará indisponível até o fim do serviço
-          };
-          saveBooking(booking);
-          alert('Horário reservado até ' + timestampToTime(booking.expiresAt));
-          location.reload();
-        });
-      } else {
-        btn.disabled = true;
-        if (reservedUntilTs) {
-          btn.textContent = minutesToTime(t) + ' (reservado até ' + timestampToTime(reservedUntilTs) + ')';
-        } else {
-          btn.textContent = minutesToTime(t) + ' (indisponível)';
-        }
-      }
+      if (!free) btn.disabled = true;
 
-      container.appendChild(btn);
-      anySlot = true;
+      btn.onclick = () => {
+        document.querySelectorAll('.slot').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedStart = t;
+
+        document.getElementById('selectedTimeText').textContent =
+          'Horário selecionado: ' + minutesToTime(t);
+
+        document.getElementById('confirmBox').style.display = 'block';
+      };
+
+      slots.appendChild(btn);
     }
 
-    if (!anySlot) {
-      container.innerHTML += '<p>Nenhum horário disponível para a duração selecionada.</p>';
-    }
+    document.getElementById('confirmBtn').onclick = () => {
+      if (selectedStart === null) return;
+
+      saveBooking({
+        start: selectedStart,
+        duration: totalMin,
+        services
+      });
+
+      document.getElementById('finalInfo').textContent =
+        'Seu horário foi confirmado para ' + minutesToTime(selectedStart);
+
+      document.getElementById('successScreen').style.display = 'flex';
+
+      // volta para seleção de serviços
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 4000);
+    };
   })();
-  </script>
+</script>
+
 </body>
 </html>
