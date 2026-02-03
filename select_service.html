@@ -3,42 +3,384 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selecionar Serviço</title>
+    <title>Selecionar Serviço - Agenda Barber</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #0a0a0a; min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px 20px; color: #fff;
+            overflow: hidden; position: relative; perspective: 1200px;
+        }
+        
+        /* BASTÕES 3D (mantidos) */
+        .barber-poles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .barber-pole { position: absolute; transform-style: preserve-3d; }
+        .pole-1 { top: 10%; right: 5%; width: 380px; height: 130px; animation: poleFloat1 25s ease-in-out infinite, poleRotate1 10s linear infinite; }
+        .pole-2 { top: 45%; left: 8%; width: 300px; height: 100px; animation: poleFloat2 30s ease-in-out infinite, poleRotate2 12s linear infinite; transform: rotateY(30deg); }
+        .pole-3 { bottom: 25%; right: 12%; width: 260px; height: 85px; animation: poleFloat3 35s ease-in-out infinite, poleRotate3 15s linear infinite; transform: rotateY(-20deg) translateZ(-200px); }
+        .pole-4 { top: 55%; left: 5%; width: 340px; height: 110px; animation: poleFloat4 28s ease-in-out infinite, poleRotate4 9s linear infinite; transform: rotateX(15deg); }
+        .pole-5 { bottom: 35%; left: 18%; width: 220px; height: 75px; animation: poleFloat5 32s ease-in-out infinite, poleRotate5 14s linear infinite; transform: rotateY(45deg) translateZ(-300px); }
+        .pole-6 { top: 25%; right: 20%; width: 280px; height: 90px; animation: poleFloat6 27s ease-in-out infinite, poleRotate6 11s linear infinite; transform: rotateX(-10deg) translateZ(-150px); }
+        .pole-cylinder {
+            width: 100%; height: 100%; border-radius: 65px;
+            background: conic-gradient(from 0deg, #dc143c 0deg 90deg, #8b0000 90deg 180deg, #ffffff 180deg 270deg, #ff1744 270deg 360deg),
+                        repeating-linear-gradient(0deg, transparent 0px, transparent 18px, rgba(255,255,255,0.3) 18px, rgba(255,255,255,0.3) 36px),
+                        linear-gradient(145deg, rgba(20,10,10,0.9) 0%, rgba(40,15,15,0.95) 100%);
+            box-shadow: 0 0 60px rgba(220,20,60,0.8), 0 0 120px rgba(255,23,68,0.4), inset 0 0 40px rgba(0,0,0,0.9);
+            transform-style: preserve-3d; border: 3px solid rgba(255,255,255,0.2);
+        }
+        @keyframes poleFloat1 { 0%, 100% { transform: translateY(0) rotateZ(0deg) scale(1); } 33% { transform: translateY(-12px) rotateZ(120deg) scale(1.04); } 66% { transform: translateY(8px) rotateZ(240deg) scale(0.98); } }
+        @keyframes poleRotate1 { to { transform: rotateZ(360deg); } } @keyframes poleFloat2 { 0%, 100% { transform: rotateY(30deg) translateY(0) scale(1); } 50% { transform: rotateY(30deg) translateY(-18px) scale(1.06); } }
+        @keyframes poleRotate2 { to { transform: rotateZ(-360deg); } } @keyframes poleFloat3 { 0%, 100% { transform: rotateY(-20deg) translateZ(-200px) translateY(0); } 50% { transform: rotateY(-20deg) translateZ(-200px) translateY(-22px) scale(1.02); } }
+        @keyframes poleRotate3 { to { transform: rotateZ(360deg); } } @keyframes poleFloat4 { 0%, 100% { transform: rotateX(15deg) translateY(0); } 50% { transform: rotateX(15deg) translateY(-10px) scale(1.02); } }
+        @keyframes poleRotate4 { to { transform: rotateZ(-360deg); } } @keyframes poleFloat5 { 0%, 100% { transform: rotateY(45deg) translateZ(-300px); } 50% { transform: rotateY(45deg) translateZ(-300px) scale(1.05) translateY(-12px); } }
+        @keyframes poleRotate5 { to { transform: rotateZ(-360deg); } } @keyframes poleFloat6 { 0%, 100% { transform: rotateX(-10deg) translateZ(-150px) translateY(0); } 50% { transform: rotateX(-10deg) translateZ(-150px) translateY(-15px) scale(1.03); } }
+        @keyframes poleRotate6 { to { transform: rotateZ(360deg); } }
+
+        /* NEONS E PARTICULAS */
+        .neon-lights { position: fixed; z-index: -1; pointer-events: none; }
+        .neon1 { top: 8%; left: 8%; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255,23,68,0.6) 0%, transparent 60%); animation: neonPulse 12s ease-in-out infinite; filter: blur(3px); }
+        .neon2 { bottom: 12%; right: 12%; width: 260px; height: 260px; background: radial-gradient(circle, rgba(220,20,60,0.5) 0%, transparent 60%); animation: neonPulse 16s ease-in-out infinite 4s; filter: blur(4px); }
+        @keyframes neonPulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.25); } }
+        .particles { position: fixed; width: 100%; height: 100%; z-index: -1; }
+        .particle { position: absolute; border-radius: 50%; background: radial-gradient(circle, #ff1744, transparent); animation: particleRise 20s linear infinite; box-shadow: 0 0 15px rgba(255,23,68,0.8); }
+        .particle:nth-child(1) { left: 15%; width: 6px; height: 6px; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 35%; width: 4px; height: 4px; animation-delay: 5s; }
+        .particle:nth-child(3) { left: 55%; width: 8px; height: 8px; animation-delay: 10s; }
+        .particle:nth-child(4) { left: 75%; width: 5px; height: 5px; animation-delay: 2s; }
+        .particle:nth-child(5) { left: 25%; width: 7px; height: 7px; animation-delay: 8s; }
+        .particle:nth-child(6) { left: 85%; width: 3px; height: 3px; animation-delay: 14s; }
+        @keyframes particleRise { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100vh) scale(2) rotate(720deg); opacity: 0; } }
+
+        /* CONTAINER MAIOR 🔼 */
+        .form-container {
+            max-width: 580px; /* ← AUMENTADO DE 440px */
+            width: 95%;
+            background: rgba(8, 8, 8, 0.97);
+            backdrop-filter: blur(35px);
+            border-radius: 28px;
+            padding: 52px 40px; /* ← PADDING MAIOR */
+            box-shadow: 0 50px 130px rgba(0,0,0,0.98), 0 0 100px rgba(220,20,60,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+            border: 2px solid rgba(255,23,68,0.45);
+            position: relative;
+            transform-style: preserve-3d;
+            animation: formElevate 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes formElevate { 
+            0% { transform: translateZ(0) rotateX(0deg); box-shadow: 0 50px 130px rgba(0,0,0,0.98), 0 0 90px rgba(220,20,60,0.35); } 
+            100% { transform: translateZ(30px) rotateX(1deg); box-shadow: 0 50px 130px rgba(0,0,0,0.98), 0 0 120px rgba(220,20,60,0.5); } 
+        }
+
+        h1 { 
+            font-size: clamp(2.1rem, 5vw, 2.7rem); 
+            font-weight: 800; 
+            margin-bottom: 2.2rem;
+            background: linear-gradient(135deg, #ff1744, #dc143c, #ff6b9d); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            background-clip: text; 
+            text-align: center;
+            animation: titleNeon 2.8s ease-in-out infinite alternate; 
+            text-shadow: 0 0 40px rgba(220,20,60,0.9); 
+        }
+        @keyframes titleNeon { 0% { filter: drop-shadow(0 0 20px rgba(255,23,68,0.8)); } 100% { filter: drop-shadow(0 0 50px rgba(220,20,60,1)); } }
+
+        /* GRID MAIS ESPAÇOSO */
+        .service-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 22px; /* ← GAP MAIOR */
+            margin-bottom: 2rem;
+            animation: gridReveal 1.2s ease forwards; 
+            opacity: 0; 
+            transform: translateZ(-50px); 
+        }
+        .service-barba_corte { grid-column: 1 / -1; }
+        
+        .service-card { 
+            position: relative; 
+            padding: 28px 24px; /* ← PADDING MAIOR */
+            background: rgba(15,15,15,0.92);
+            border: 2px solid rgba(220,20,60,0.45); 
+            border-radius: 20px; 
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            transform-style: preserve-3d;
+            backdrop-filter: blur(20px); 
+            height: 100px; /* ← MAIOR */
+            display: flex; 
+            align-items: center; 
+        }
+        .service-card.service-barba_corte { 
+            height: 94px; 
+            padding: 30px 32px; /* ← AINDA MAIOR */
+        }
+        .service-card:hover { 
+            background: rgba(220,20,60,0.18); 
+            border-color: #ff1744;
+            transform: translateY(-8px) translateZ(30px) scale(1.04);
+            box-shadow: 0 25px 60px rgba(220,20,60,0.55), 0 0 50px rgba(255,23,68,0.45); 
+        }
+        .service-card input[type="checkbox"] { display: none; }
+        
+        .service-content { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: container;
+            width: 100%; 
+            padding-left: 12px; 
+        }
+        .service-info { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 2px; 
+            flex: 1; 
+        }
+        .service-name { 
+            font-size: 16px; /* ← MAIOR */
+            font-weight: 700; 
+            color: #fff; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            margin-bottom: 2px; 
+        }
+        .service-price { 
+            font-size: 19px; /* ← MAIOR */
+            font-weight: 900; 
+            background: linear-gradient(135deg, #ff1744, #dc143c); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text; 
+            text-shadow: 0 0 15px rgba(255,23,68,0.7); 
+        }
+        
+        .checkbox-custom { 
+            width: 28px; /* ← MAIOR */
+            height: 28px; 
+            border: 2px solid rgba(220,20,60,0.7); 
+            border-radius: 8px; 
+            background: rgba(15,15,15,0.95); 
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); 
+            transform-style: preserve-3d; 
+            flex-shrink: 0; 
+            position: relative; 
+            margin-right: 16px; 
+        }
+        .service-card input:checked + .service-content .checkbox-custom { 
+            background: linear-gradient(135deg, #ff1744, #dc143c); 
+            border-color: #ff1744; 
+            box-shadow: 0 0 0 4px rgba(255,23,68,0.45), 0 0 30px rgba(220,20,60,0.9), inset 0 3px 10px rgba(255,255,255,0.35); 
+            transform: translateZ(15px) scale(1.12); 
+        }
+        .checkbox-custom::after { 
+            content: '✓'; 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%) scale(0); 
+            color: #fff; 
+            font-size: 15px; /* ← MAIOR */
+            font-weight: 900; 
+            opacity: 0; 
+            transition: all 0.35s ease; 
+        }
+        .service-card input:checked + .service-content .checkbox-custom::after { 
+            transform: translate(-50%, -50%) scale(1.1); 
+            opacity: 1; 
+        }
+        @keyframes gridReveal { to { opacity: 1; transform: translateY(0) translateZ(30px); } }
+
+        /* TOTAL MAIOR */
+        .total-section { 
+            background: rgba(20,20,20,0.95); 
+            border: 2px solid rgba(255,23,68,0.6); 
+            border-radius: 24px; 
+            padding: 28px 36px; /* ← MAIOR */
+            margin-top: 2rem; 
+            transform-style: preserve-3d; 
+            transition: all 0.4s ease; 
+            animation: slideReveal 1.6s ease forwards; 
+            opacity: 0; 
+            transform: translateZ(-30px); 
+        }
+        .total-section:hover { 
+            border-color: #ff1744; 
+            box-shadow: 0 20px 50px rgba(220,20,60,0.5); 
+            transform: translateZ(20px); 
+        }
+        .total-label { 
+            font-size: 15px; 
+            color: rgba(255,255,255,0.8); 
+            text-transform: uppercase; 
+            letter-spacing: 0.6px; 
+            margin-bottom: 16px; 
+            text-align: center;
+        }
+        .total-price { 
+            font-size: 28px; /* ← MAIOR */
+            font-weight: 900; 
+            background: linear-gradient(135deg, #ff1744, #dc143c, #ff6b9d); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text; 
+            text-align: center; 
+            text-shadow: 0 0 25px rgba(255,23,68,0.9); 
+            margin-bottom: 20px; 
+        }
+        button {
+            width: 100%;
+            padding: 20px 32px;
+            background: linear-gradient(135deg, #ff1744, #dc143c, #ff6b9d);
+            color: #fff;
+            font-size: 17px;
+            font-weight: 800;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 20px 50px rgba(255,23,68,0.8), 0 0 60px rgba(220,20,60,0.6);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-8px) translateZ(40px) scale(1.08);
+            box-shadow: 0 40px 90px rgba(255,23,68,0.95), 0 0 120px rgba(220,20,60,0.9);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        @keyframes slideReveal { to { opacity: 1; transform: translateY(0) translateZ(25px); } }
+
+        @media (max-width: 600px) { 
+            .form-container { padding: 44px 32px; max-width: 96vw; } 
+            .service-grid { gap: 20px; } 
+            .service-card { height: 96px; padding: 26px 22px; } 
+            .service-card.service-barba_corte { height: 90px; padding: 28px 28px; }
+            .total-section { padding: 24px 28px; }
+        }
+    </style>
 </head>
 <body>
-    <h1>Selecionar Serviço</h1>
-    <form id="serviceForm" action="/agendar" method="POST">
-        <input type="checkbox" id="barba" name="service[]" value="barba">
-        <label for="barba">Barba</label><br>
+    <div class="barber-poles">
+        <div class="barber-pole pole-1"><div class="pole-cylinder"></div></div>
+        <div class="barber-pole pole-2"><div class="pole-cylinder"></div></div>
+        <div class="barber-pole pole-3"><div class="pole-cylinder"></div></div>
+        <div class="barber-pole pole-4"><div class="pole-cylinder"></div></div>
+        <div class="barber-pole pole-5"><div class="pole-cylinder"></div></div>
+        <div class="barber-pole pole-6"><div class="pole-cylinder"></div></div>
+    </div>
+    <div class="neon-lights neon1"></div><div class="neon-lights neon2"></div>
+    <div class="particles">
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    </div>
 
-        <input type="checkbox" id="corte" name="service[]" value="corte">
-        <label for="corte">Corte</label><br>
+    <div class="form-container">
+        <h1>Selecionar Serviço</h1>
+        <form id="serviceForm" action="/agendar" method="POST">
+            <div class="service-grid">
+                <div class="service-card">
+                    <input type="checkbox" id="barba" name="service[]" value="barba" data-price="45">
+                    <label for="barba" class="service-content">
+                        <span class="checkbox-custom"></span>
+                        <div class="service-info">
+                            <div class="service-name">Barba</div>
+                            <div class="service-price">R$ 45</div>
+                        </div>
+                    </label>
+                </div>
 
-        <input type="checkbox" id="sobrancelha" name="service[]" value="sobrancelha">
-        <label for="sobrancelha">Sobrancelha</label><br>
+                <div class="service-card">
+                    <input type="checkbox" id="corte" name="service[]" value="corte" data-price="50">
+                    <label for="corte" class="service-content">
+                        <span class="checkbox-custom"></span>
+                        <div class="service-info">
+                            <div class="service-name">Corte</div>
+                            <div class="service-price">R$ 50</div>
+                        </div>
+                    </label>
+                </div>
 
-        <input type="checkbox" id="pigmentacao" name="service[]" value="pigmentacao">
-        <label for="pigmentacao">Pigmentação</label><br>
+                <div class="service-card">
+                    <input type="checkbox" id="sobrancelha" name="service[]" value="sobrancelha" data-price="25">
+                    <label for="sobrancelha" class="service-content">
+                        <span class="checkbox-custom"></span>
+                        <div class="service-info">
+                            <div class="service-name">Sobrancelha</div>
+                            <div class="service-price">R$ 25</div>
+                        </div>
+                    </label>
+                </div>
 
-        <input type="checkbox" id="pintar" name="service[]" value="pintar">
-        <label for="pintar">Pintar</label><br>
+                <div class="service-card">
+                    <input type="checkbox" id="pigmentacao" name="service[]" value="pigmentacao" data-price="60">
+                    <label for="pigmentacao" class="service-content">
+                        <span class="checkbox-custom"></span>
+                        <div class="service-info">
+                            <div class="service-name">Pigmentação</div>
+                            <div class="service-price">R$ 60</div>
+                        </div>
+                    </label>
+                </div>
 
-        <input type="checkbox" id="barba_corte" name="service[]" value="barba_e_corte">
-        <label for="barba_corte">Barba e Corte</label><br><br>
+                <div class="service-card">
+                    <input type="checkbox" id="pintar" name="service[]" value="pintar" data-price="70">
+                    <label for="pintar" class="service-content">
+                        <span class="checkbox-custom"></span>
+                        <div class="service-info">
+                            <div class="service-name">Pintar</div>
+                            <div class="service-price">R$ 70</div>
+                        </div>
+                    </label>
+                </div>
 
-        <button type="submit">Confirmar</button>
-    </form>
+                <div class="service-card service-barba_corte">
+                    <input type="checkbox" id="barba_corte" name="service[]" value="barba_e_corte" data-price="85">
+                    <label for="barba_corte" class="service-content">
+                        <span class="checkbox-custom"></span>
+                        <div class="service-info">
+                            <div class="service-name">Barba + Corte</div>
+                            <div class="service-price">R$ 85</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="total-section">
+                <div class="total-label">Total selecionado</div>
+                <div class="total-price" id="totalPrice">R$ 0</div>
+                <button type="submit" id="confirmarBtn" disabled>Confirmar e Agendar</button>
+            </div>
+        </form>
+    </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function(){
-      var form = document.getElementById('serviceForm');
-      form.addEventListener('submit', function(e){
-        if(!form.querySelector('input[name="service[]"]:checked')){
-          alert('Selecione pelo menos um serviço.');
-          e.preventDefault();
-        }
-      });
-    });
+        document.addEventListener('DOMContentLoaded', function(){
+            const services = document.querySelectorAll('input[name="service[]"]');
+            const totalPriceEl = document.getElementById('totalPrice');
+            const confirmBtn = document.getElementById('confirmarBtn');
+
+            function updateTotal() {
+                let total = 0;
+                services.forEach(service => {
+                    if (service.checked) {
+                        total += parseInt(service.dataset.price);
+                    }
+                });
+                totalPriceEl.textContent = `R$ ${total}`;
+                confirmBtn.disabled = total === 0;
+            }
+
+            services.forEach(service => {
+                service.addEventListener('change', updateTotal);
+            });
+
+            updateTotal();
+        });
     </script>
 </body>
 </html>
