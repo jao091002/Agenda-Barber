@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Escolher Horário</title>
+</head>
+<body>
+  <h1>Escolher Horário</h1>
+  <div id="summary"></div>
+  <div id="slots"></div>
+
+  <script>
+  const DURATIONS = {
+    'barba': 30,
+    'corte': 30,
+    'pigmentacao': 30,
+    'sobrancelha': 5,
+    'pintar': 60,
+    'barba_e_corte': 60
+  };
+
+  function parseQuery() {
+    const params = new URLSearchParams(location.search);
+    return params.getAll('service[]');
+  }
+
+  // Horário no formato H:MM ou HH:MM (sem zero à esquerda no H)
+  function minutesToTime(m) {
+    const hh = String(Math.floor(m/60));
+    const mm = String(m%60).padStart(2,'0');
+    return hh + ':' + mm;
+  }
+
+  function timestampToTime(ts) {
+    const d = new Date(ts);
+    const hh = String(d.getHours());
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    return hh + ':' + mm;
+  }
+
+  function minutesToTodayTimestamp(minutesFromMidnight) {
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+    const date = new Date(y, m, d, 0, 0, 0, 0);
+    return date.getTime() + minutesFromMidnight * 60000;
+  }
+
+  function overlaps(aStart, aLen, bStart, bLen) {
+    return aStart < bStart + bLen && bStart < aStart + aLen;
+  }
+
+  function loadBookings() {
+    try {
+      const raw = localStorage.getItem('bookings');
+      const arr = raw ? JSON.parse(raw) : [];
+      const now = Date.now();
+      // remover reservas que já expiraram (fim do serviço)
+      const cleaned = arr.filter(b => !b.expiresAt || b.expiresAt > now);
+      if (cleaned.length !== arr.length) {
+        localStorage.setItem('bookings', JSON.stringify(cleaned));
+      }
+      return cleaned;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveBooking(b) {
+    const arr = loadBookings();
+    arr.push(b);
+    localStorage.setItem('bookings', JSON.stringify(arr));
+  }
+
+  (function init(){
+    const services = parseQuery();
+    if (!services.length) {
+      document.getElementById('summary').textContent = 'Nenhum serviço selecionado. Volte e escolha ao menos um serviço.';
+      return;
+    }
+
+    const totalMin = services.reduce((sum, svc) => sum + (DURATIONS[svc] || 0), 0);
+    document.getElementById('summary').innerHTML =
+      '<strong>Serviços:</strong> ' + services.join(', ') +
+      '<br><strong>Duração total:</strong> ' + totalMin + ' min';
+
+    const startDay = 8*60; // 08:00 em minutos
+    const endDay = 18*60;  // 18:00 em minutos
+
+    // último início: garantir que o serviço termine até 18:00 e o início seja em múltiplo de 30
+    const rawLast = endDay - totalMin;
+    const lastStart = Math.floor(rawLast / 30) * 30;
+
+    const step = 30; // somente :00 e :30
+
+    const bookings = loadBookings();
+
+    const container = document.getElementById('slots');
+    container.innerHTML = '<p><strong>Horários disponíveis (inícios em :00 ou :30):</strong></p>';
+
+    let anySlot = false;
+    for (let t = startDay; t <= lastStart; t += step) {
+      let isFree = true;
+      let reservedUntilTs = null;
+
+      for (const b of bookings) {
+        if (overlaps(t, totalMin, b.start, b.duration)) {
+          isFree = false;
+          if (b.expiresAt) reservedUntilTs = b.expiresAt;
+          break;
+        }
+      }
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.style.margin = '4px';
+
+      if (isFree) {
+        btn.textContent = minutesToTime(t);
+        btn.addEventListener('click', function(){
+          if (!confirm('Confirmar agendamento em ' + minutesToTime(t) + ' para ' + services.join(', ') + ' ?')) return;
+          const startTs = minutesToTodayTimestamp(t);
+          const endTs = minutesToTodayTimestamp(t + totalMin);
+          const booking = {
+            start: t,
+            duration: totalMin,
+            services: services,
+            created: Date.now(),
+            startTs: startTs,
+            expiresAt: endTs // ficará indisponível até o fim do serviço
+          };
+          saveBooking(booking);
+          alert('Horário reservado até ' + timestampToTime(booking.expiresAt));
+          location.reload();
+        });
+      } else {
+        btn.disabled = true;
+        if (reservedUntilTs) {
+          btn.textContent = minutesToTime(t) + ' (reservado até ' + timestampToTime(reservedUntilTs) + ')';
+        } else {
+          btn.textContent = minutesToTime(t) + ' (indisponível)';
+        }
+      }
+
+      container.appendChild(btn);
+      anySlot = true;
+    }
+
+    if (!anySlot) {
+      container.innerHTML += '<p>Nenhum horário disponível para a duração selecionada.</p>';
+    }
+  })();
+  </script>
+</body>
+</html>
