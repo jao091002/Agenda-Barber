@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selecionar Serviço</title>
+</head>
+<body>
+    <h1>Selecionar Serviço</h1>
+    <form id="serviceForm" action="/agendar" method="POST">
+        <input type="checkbox" id="barba" name="service[]" value="barba">
+        <label for="barba">Barba</label><br>
+
+        <input type="checkbox" id="corte" name="service[]" value="corte">
+        <label for="corte">Corte</label><br>
+
+        <input type="checkbox" id="sobrancelha" name="service[]" value="sobrancelha">
+        <label for="sobrancelha">Sobrancelha</label><br>
+
+        <input type="checkbox" id="pigmentacao" name="service[]" value="pigmentacao">
+        <label for="pigmentacao">Pigmentação</label><br>
+
+        <input type="checkbox" id="pintar" name="service[]" value="pintar">
+        <label for="pintar">Pintar</label><br>
+
+        <input type="checkbox" id="barba_corte" name="service[]" value="barba_e_corte">
+        <label for="barba_corte">Barba e Corte</label><br><br>
+
+        <button type="submit">Confirmar</button>
+    </form>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      var form = document.getElementById('serviceForm');
+      form.addEventListener('submit', function(e){
+        if(!form.querySelector('input[name="service[]"]:checked')){
+          alert('Selecione pelo menos um serviço.');
+          e.preventDefault();
+        }
+      });
+    });
+    </script>
+</body>
+</html>
