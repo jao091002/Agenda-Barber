@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Barber - Gestão</title>
+    <style>
+        /* --- ESTILOS BASE MANTIDOS --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* FUNDO E ANIMAÇÕES */
+        .barber-poles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .barber-pole { position: absolute; transform-style: preserve-3d; opacity: 0.4; }
+        .pole-1 { top: 10%; right: 5%; width: 420px; height: 140px; animation: poleRotate1 10s linear infinite; }
+        .pole-cylinder { width: 100%; height: 100%; border-radius: 70px; background: conic-gradient(from 0deg, #dc143c, #8b0000, #ffffff, #ff1744); border: 3px solid rgba(255,255,255,0.2); }
+        @keyframes poleRotate1 { to { transform: rotateZ(360deg); } }
+
+        /* BOTÃO VOLTAR */
+        .btn-voltar {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 23, 68, 0.3);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            align-self: flex-start;
+            transition: 0.3s;
+        }
+        .btn-voltar:hover { background: rgba(220, 20, 60, 0.15); color: #fff; transform: translateX(-5px); }
+
+        /* CONTAINER */
+        .agenda-container {
+            max-width: 550px;
+            width: 100%;
+            background: rgba(8, 8, 8, 0.96);
+            backdrop-filter: blur(35px);
+            border-radius: 28px;
+            padding: 30px;
+            border: 2px solid rgba(255,23,68,0.4);
+        }
+
+        h1 { text-align: center; margin-bottom: 30px; background: linear-gradient(135deg, #ff1744, #dc143c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .date-divider { color: #ff1744; font-weight: 700; font-size: 14px; margin: 20px 0; display: flex; align-items: center; gap: 10px; }
+        .date-divider::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,23,68,0.5), transparent); }
+
+        /* CARD DE AGENDAMENTO */
+        .appointment-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 23, 68, 0.15);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .appointment-card.completed {
+            opacity: 0.4;
+            filter: grayscale(1);
+            text-decoration: line-through;
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .client-info h3 { font-size: 18px; color: #fff; }
+        .client-info p { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
+
+        /* AÇÕES (BOTÕES) */
+        .actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-action {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            color: white;
+        }
+
+        .btn-done { background: rgba(0, 200, 80, 0.2); border: 1px solid rgba(0, 200, 80, 0.4); }
+        .btn-done:hover { background: #00c850; box-shadow: 0 0 15px #00c850; }
+
+        .btn-delete { background: rgba(255, 23, 68, 0.2); border: 1px solid rgba(255, 23, 68, 0.4); }
+        .btn-delete:hover { background: #ff1744; box-shadow: 0 0 15px #ff1744; }
+
+        .time-badge {
+            background: #222;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: 800;
+            color: #ff1744;
+            margin-right: 10px;
+            border: 1px solid rgba(255,23,68,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="barber-poles">
+        <div class="barber-pole pole-1"><div class="pole-cylinder"></div></div>
+    </div>
+
+    <a href="serviços_barbeiros.html" class="btn-voltar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Voltar para Serviços
+    </a>
+
+    <div class="agenda-container">
+        <h1>Agenda Diária</h1>
+
+        <div class="date-divider">Terça-feira, 24 de Fevereiro</div>
+
+        <div class="appointment-card" id="card-1">
+            <div class="client-info">
+                <span class="time-badge">09:00</span>
+                <h3>Gustavo Lima</h3>
+                <p>Corte + Barba Therapy</p>
+            </div>
+            <div class="actions">
+                <button class="btn-action btn-done" onclick="toggleComplete('card-1')" title="Concluir">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </button>
+                <button class="btn-action btn-delete" onclick="removeCard('card-1')" title="Excluir">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="appointment-card" id="card-2">
+            <div class="client-info">
+                <span class="time-badge">10:30</span>
+                <h3>Isa Scalhon</h3>
+                <p>Limpeza de pele</p>
+            </div>
+            <div class="actions">
+                <button class="btn-action btn-done" onclick="toggleComplete('card-2')" title="Concluir">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </button>
+                <button class="btn-action btn-delete" onclick="removeCard('card-2')" title="Excluir">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleComplete(id) {
+            const card = document.getElementById(id);
+            card.classList.toggle('completed');
+        }
+
+        function removeCard(id) {
+            const card = document.getElementById(id);
+            card.style.transform = "translateX(100px)";
+            card.style.opacity = "0";
+            setTimeout(() => {
+                card.remove();
+            }, 300);
+        }
+    </script>
+</body>
+</html>

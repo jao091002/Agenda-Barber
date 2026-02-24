@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Selecionar Serviço - Agenda Barber</title>
     <style>
+        /* TODO O CSS ORIGINAL MANTIDO - SEM MUDANÇAS VISUAIS */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
@@ -13,7 +14,7 @@
             overflow: hidden; position: relative; perspective: 1200px;
         }
         
-        /* BASTÕES 3D (mantidos) */
+        /* [TODO O CSS DOS BASTÕES 3D, NEONS E PARTICULAS MANTIDO IGUAL] */
         .barber-poles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
         .barber-pole { position: absolute; transform-style: preserve-3d; }
         .pole-1 { top: 10%; right: 5%; width: 380px; height: 130px; animation: poleFloat1 25s ease-in-out infinite, poleRotate1 10s linear infinite; }
@@ -38,7 +39,6 @@
         @keyframes poleRotate5 { to { transform: rotateZ(-360deg); } } @keyframes poleFloat6 { 0%, 100% { transform: rotateX(-10deg) translateZ(-150px) translateY(0); } 50% { transform: rotateX(-10deg) translateZ(-150px) translateY(-15px) scale(1.03); } }
         @keyframes poleRotate6 { to { transform: rotateZ(360deg); } }
 
-        /* NEONS E PARTICULAS */
         .neon-lights { position: fixed; z-index: -1; pointer-events: none; }
         .neon1 { top: 8%; left: 8%; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255,23,68,0.6) 0%, transparent 60%); animation: neonPulse 12s ease-in-out infinite; filter: blur(3px); }
         .neon2 { bottom: 12%; right: 12%; width: 260px; height: 260px; background: radial-gradient(circle, rgba(220,20,60,0.5) 0%, transparent 60%); animation: neonPulse 16s ease-in-out infinite 4s; filter: blur(4px); }
@@ -53,21 +53,18 @@
         .particle:nth-child(6) { left: 85%; width: 3px; height: 3px; animation-delay: 14s; }
         @keyframes particleRise { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100vh) scale(2) rotate(720deg); opacity: 0; } }
 
-        /* CONTAINER MAIOR 🔼 */
         .form-container {
-            max-width: 580px; /* ← AUMENTADO DE 440px */
-            width: 95%;
+            max-width: 580px; width: 95%;
             background: rgba(8, 8, 8, 0.97);
             backdrop-filter: blur(35px);
             border-radius: 28px;
-            padding: 52px 40px; /* ← PADDING MAIOR */
+            padding: 52px 40px;
             box-shadow: 0 50px 130px rgba(0,0,0,0.98), 0 0 100px rgba(220,20,60,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
             border: 2px solid rgba(255,23,68,0.45);
             position: relative;
             transform-style: preserve-3d;
             animation: formElevate 5s ease-in-out infinite alternate;
         }
-
         @keyframes formElevate { 
             0% { transform: translateZ(0) rotateX(0deg); box-shadow: 0 50px 130px rgba(0,0,0,0.98), 0 0 90px rgba(220,20,60,0.35); } 
             100% { transform: translateZ(30px) rotateX(1deg); box-shadow: 0 50px 130px rgba(0,0,0,0.98), 0 0 120px rgba(220,20,60,0.5); } 
@@ -86,11 +83,10 @@
         }
         @keyframes titleNeon { 0% { filter: drop-shadow(0 0 20px rgba(255,23,68,0.8)); } 100% { filter: drop-shadow(0 0 50px rgba(220,20,60,1)); } }
 
-        /* GRID MAIS ESPAÇOSO */
         .service-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 22px; /* ← GAP MAIOR */
+            gap: 22px;
             margin-bottom: 2rem;
             animation: gridReveal 1.2s ease forwards; 
             opacity: 0; 
@@ -100,7 +96,7 @@
         
         .service-card { 
             position: relative; 
-            padding: 28px 24px; /* ← PADDING MAIOR */
+            padding: 28px 24px;
             background: rgba(15,15,15,0.92);
             border: 2px solid rgba(220,20,60,0.45); 
             border-radius: 20px; 
@@ -108,13 +104,13 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
             transform-style: preserve-3d;
             backdrop-filter: blur(20px); 
-            height: 100px; /* ← MAIOR */
+            height: 100px;
             display: flex; 
             align-items: center; 
         }
         .service-card.service-barba_corte { 
             height: 94px; 
-            padding: 30px 32px; /* ← AINDA MAIOR */
+            padding: 30px 32px;
         }
         .service-card:hover { 
             background: rgba(220,20,60,0.18); 
@@ -127,7 +123,7 @@
         .service-content { 
             display: flex; 
             justify-content: space-between; 
-            align-items: container;
+            align-items: center;
             width: 100%; 
             padding-left: 12px; 
         }
@@ -138,7 +134,7 @@
             flex: 1; 
         }
         .service-name { 
-            font-size: 16px; /* ← MAIOR */
+            font-size: 16px;
             font-weight: 700; 
             color: #fff; 
             text-transform: uppercase; 
@@ -146,7 +142,7 @@
             margin-bottom: 2px; 
         }
         .service-price { 
-            font-size: 19px; /* ← MAIOR */
+            font-size: 19px;
             font-weight: 900; 
             background: linear-gradient(135deg, #ff1744, #dc143c); 
             -webkit-background-clip: text; 
@@ -156,7 +152,7 @@
         }
         
         .checkbox-custom { 
-            width: 28px; /* ← MAIOR */
+            width: 28px;
             height: 28px; 
             border: 2px solid rgba(220,20,60,0.7); 
             border-radius: 8px; 
@@ -180,7 +176,7 @@
             left: 50%; 
             transform: translate(-50%, -50%) scale(0); 
             color: #fff; 
-            font-size: 15px; /* ← MAIOR */
+            font-size: 15px;
             font-weight: 900; 
             opacity: 0; 
             transition: all 0.35s ease; 
@@ -191,12 +187,11 @@
         }
         @keyframes gridReveal { to { opacity: 1; transform: translateY(0) translateZ(30px); } }
 
-        /* TOTAL MAIOR */
         .total-section { 
             background: rgba(20,20,20,0.95); 
             border: 2px solid rgba(255,23,68,0.6); 
             border-radius: 24px; 
-            padding: 28px 36px; /* ← MAIOR */
+            padding: 28px 36px;
             margin-top: 2rem; 
             transform-style: preserve-3d; 
             transition: all 0.4s ease; 
@@ -218,7 +213,7 @@
             text-align: center;
         }
         .total-price { 
-            font-size: 28px; /* ← MAIOR */
+            font-size: 28px;
             font-weight: 900; 
             background: linear-gradient(135deg, #ff1744, #dc143c, #ff6b9d); 
             -webkit-background-clip: text; 
@@ -281,7 +276,7 @@
 
     <div class="form-container">
         <h1>Selecionar Serviço</h1>
-        <form id="serviceForm" action="/agendar" method="POST">
+        <form id="serviceForm">
             <div class="service-grid">
                 <div class="service-card">
                     <input type="checkbox" id="barba" name="service[]" value="barba" data-price="45">
@@ -321,7 +316,7 @@
                     <label for="pigmentacao" class="service-content">
                         <span class="checkbox-custom"></span>
                         <div class="service-info">
-                            <div class="service-name">Pigmentação</div>
+                            <div class="service-name">Limpeza de Pele</div>
                             <div class="service-price">R$ 60</div>
                         </div>
                     </label>
@@ -353,7 +348,8 @@
             <div class="total-section">
                 <div class="total-label">Total selecionado</div>
                 <div class="total-price" id="totalPrice">R$ 0</div>
-                <button type="submit" id="confirmarBtn" disabled>Confirmar e Agendar</button>
+                <!-- 🔧 MUDANÇA PRINCIPAL: Botão agora vai para agendar.html -->
+                <button type="button" id="confirmarBtn" onclick="goToSchedule()" disabled>Próximo: Escolher Horário</button>
             </div>
         </form>
     </div>
@@ -366,13 +362,21 @@
 
             function updateTotal() {
                 let total = 0;
+                let selectedServices = [];
+                
                 services.forEach(service => {
                     if (service.checked) {
                         total += parseInt(service.dataset.price);
+                        selectedServices.push(service.value);
                     }
                 });
+                
                 totalPriceEl.textContent = `R$ ${total}`;
                 confirmBtn.disabled = total === 0;
+                
+                // Armazenar seleção para próxima página
+                sessionStorage.setItem('selectedServices', JSON.stringify(selectedServices));
+                sessionStorage.setItem('totalPrice', total);
             }
 
             services.forEach(service => {
@@ -381,6 +385,25 @@
 
             updateTotal();
         });
+
+        // 🔧 NOVA FUNÇÃO: Redireciona para agendar.html passando os dados
+        function goToSchedule() {
+            const services = document.querySelectorAll('input[name="service[]"]:checked');
+            if (services.length === 0) return;
+
+            // Pegar o primeiro serviço selecionado para exibir no resumo
+            const firstService = services[0];
+            const serviceName = firstService.value.replace('_', ' + ').replace(/^\w/, c => c.toUpperCase());
+            const servicePrice = firstService.dataset.price;
+
+            // Redirecionar passando parâmetros na URL
+            const params = new URLSearchParams({
+                service: serviceName,
+                price: servicePrice
+            });
+            
+            window.location.href = `agendar.html?${params.toString()}`;
+        }
     </script>
 </body>
 </html>
