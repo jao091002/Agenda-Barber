@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Escolher Horário</title>
+<style>
+body{background:#0a0a0a;color:#fff;font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;}
+.container{width:600px;background:#111;padding:40px;border-radius:25px;border:2px solid #ff1744;}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;}
+.card{padding:20px;border-radius:15px;border:2px solid #444;text-align:center;cursor:pointer;}
+.card:hover{border-color:#ff1744;}
+.card.selected{background:#ff174422;border-color:#ff1744;}
+.card input{display:none;}
+button{margin-top:30px;width:100%;padding:15px;background:#ff1744;border:none;border-radius:15px;color:#fff;font-weight:800;}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h2>Escolha seu Horário</h2>
+
+<div class="grid">
+<label class="card"><input type="radio" name="time" value="09:00">09:00</label>
+<label class="card"><input type="radio" name="time" value="10:00">10:00</label>
+<label class="card"><input type="radio" name="time" value="11:00">11:00</label>
+<label class="card"><input type="radio" name="time" value="13:00">13:00</label>
+<label class="card"><input type="radio" name="time" value="14:00">14:00</label>
+<label class="card"><input type="radio" name="time" value="15:00">15:00</label>
+<label class="card"><input type="radio" name="time" value="16:00">16:00</label>
+<label class="card"><input type="radio" name="time" value="17:00">17:00</label>
+<label class="card"><input type="radio" name="time" value="18:00">18:00</label>
+</div>
+
+<button onclick="confirmar()">Confirmar Agendamento</button>
+</div>
+
+<script>
+const cards=document.querySelectorAll(".card");
+
+cards.forEach(card=>{
+    card.addEventListener("click",()=>{
+        cards.forEach(c=>c.classList.remove("selected"));
+        card.classList.add("selected");
+        card.querySelector("input").checked=true;
+    });
+});
+
+function confirmar(){
+    const selected=document.querySelector("input[name='time']:checked");
+    if(!selected){alert("Selecione um horário");return;}
+
+    sessionStorage.setItem("time",selected.value);
+    window.location.href="confirmar.html";
+}
+</script>
+
+</body>
+</html>
