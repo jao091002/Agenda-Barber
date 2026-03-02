@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento</title>
+    <style>
+        :root {
+            --primary: #ff1744;
+            --bg: #0a0a0a;
+            --card: #111;
+        }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            overflow: hidden; /* Para as luzes de fundo não criarem scroll */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* --- ANIMAÇÃO DE FUNDO 3D (Luzes) --- */
+        .background-lights {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            perspective: 1000px;
+        }
+
+        .light {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 23, 68, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(50px);
+            animation: move 10s infinite alternate ease-in-out;
+        }
+
+        @keyframes move {
+            from { transform: translate3d(-10%, -10%, 0) scale(1); }
+            to { transform: translate3d(110%, 110%, 0) scale(1.5); }
+        }
+
+        /* --- CONTAINER PRINCIPAL --- */
+        .box {
+            width: 450px;
+            background: var(--card);
+            padding: 40px;
+            border-radius: 30px;
+            border: 2px solid var(--primary);
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 23, 68, 0.2);
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 { color: var(--primary); margin-bottom: 30px; font-size: 2rem; }
+
+        .options-container { display: flex; flex-direction: column; gap: 15px; }
+
+        .btn-pay {
+            padding: 18px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 23, 68, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .btn-pay:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 23, 68, 0.3);
+        }
+
+        /* --- ÁREA DO PIX (ESCONDIDA INICIALMENTE) --- */
+        #pix-area { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .copy-key {
+            font-size: 0.8rem;
+            background: #222;
+            padding: 10px;
+            border-radius: 5px;
+            word-break: break-all;
+            margin-bottom: 20px;
+            border: 1px dashed var(--primary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .back-link {
+            margin-top: 20px;
+            display: block;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-lights">
+        <div class="light" style="top: -10%; left: -10%; animation-delay: 0s;"></div>
+        <div class="light" style="bottom: -10%; right: -10%; animation-delay: -5s; background: radial-gradient(circle, rgba(255, 23, 68, 0.15) 0%, transparent 70%);"></div>
+    </div>
+
+    <div class="box">
+        <div id="payment-selection">
+            <h1>Pagamento</h1>
+            <div class="options-container">
+                <button class="btn-pay" onclick="showPix()">
+                    <span>📱</span> Pagar agora com PIX
+                </button>
+                <button class="btn-pay" onclick="irParaConclusao()">
+                    <span>💳</span> Pagar no Local (Dinheiro/Cartão)
+                </button>
+            </div>
+            <a href="javascript:history.back()" class="back-link">Voltar</a>
+        </div>
+
+        <div id="pix-area">
+            <h1>Escaneie o PIX</h1>
+            <div class="qr-code">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ChavePixFicticia123" alt="QR Code" style="width:100%">
+            </div>
+            <div class="copy-key">00020126360014BR.GOV.BCB.PIX0114+5511999999999</div>
+            <button class="btn-pay" style="width: 100%;" onclick="irParaConclusao()">Já paguei</button>
+            <a href="#" onclick="location.reload()" class="back-link">Cancelar</a>
+        </div>
+    </div>
+
+    <script>
+        function showPix() {
+            document.getElementById('payment-selection').style.display = 'none';
+            document.getElementById('pix-area').style.display = 'flex';
+        }
+
+        function irParaConclusao() {
+            // Redireciona para a página de conclusão
+            window.location.href = 'conclusão.html';
+        }
+    </script>
+</body>
+</html>

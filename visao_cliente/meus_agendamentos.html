@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Agendamentos</title>
+    <style>
+        :root {
+            --primary: #ff1744;
+            --bg: #0a0a0a;
+            --card: #111;
+        }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-y: auto;
+            padding: 40px 0;
+        }
+
+        /* BOTÃO VOLTAR NO TOPO */
+        .btn-top-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: 0.3s;
+            z-index: 100;
+        }
+
+        .btn-top-back:hover {
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* --- FUNDO ANIMADO --- */
+        .background-lights {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+        }
+
+        .light {
+            position: absolute;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255, 23, 68, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: move 15s infinite alternate ease-in-out;
+        }
+
+        @keyframes move {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(100%, 80%); }
+        }
+
+        /* --- CONTAINER --- */
+        .box {
+            width: 90%;
+            max-width: 600px;
+            background: var(--card);
+            padding: 40px;
+            border-radius: 30px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(255, 23, 68, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 { color: var(--primary); text-align: center; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* --- CARD DE AGENDAMENTO --- */
+        .agendamento-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .agendamento-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
+
+        .info h3 { margin: 0; color: #fff; font-size: 1.1rem; }
+        .info p { margin: 5px 0 0; color: #888; font-size: 0.85rem; }
+
+        .status {
+            background: rgba(255, 23, 68, 0.2);
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .status.past {
+            background: rgba(255, 255, 255, 0.1);
+            color: #666;
+        }
+
+        .btn-voltar {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            border: none;
+            color: white;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn-voltar:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 5px 15px rgba(255, 23, 68, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <a href="select_service.html" class="btn-top-back">← Voltar</a>
+
+    <div class="background-lights">
+        <div class="light" style="top: 0; left: 0;"></div>
+        <div class="light" style="bottom: 0; right: 0; animation-delay: -5s;"></div>
+    </div>
+
+    <div class="box">
+        <h1>Meus Agendamentos</h1>
+
+        <div id="lista-agendamentos">
+            <div class="agendamento-card" style="opacity: 0.6;">
+                <div class="info">
+                    <h3>Corte de Cabelo + Barba</h3>
+                    <p>📅 Data: 15/10/2023 - 14:00</p>
+                    <p>💰 Valor: R$ 85,00</p>
+                </div>
+                <div class="status past">Finalizado</div>
+            </div>
+
+            <div class="agendamento-card" style="opacity: 0.6;">
+                <div class="info">
+                    <h3>Limpeza de Pele</h3>
+                    <p>📅 Data: 02/11/2023 - 10:30</p>
+                    <p>💰 Valor: R$ 120,00</p>
+                </div>
+                <div class="status past">Finalizado</div>
+            </div>
+
+            <div id="agendamento-real"></div>
+        </div>
+
+        <button class="btn-voltar" onclick="window.location.href='select_service.html'">Novo Agendamento</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const containerReal = document.getElementById("agendamento-real");
+            
+            const services = JSON.parse(sessionStorage.getItem("services"));
+            const time = sessionStorage.getItem("time");
+            const total = sessionStorage.getItem("total");
+
+            if (services && time) {
+                containerReal.innerHTML = `
+                    <div class="agendamento-card">
+                        <div class="info">
+                            <h3>${services.join(", ")}</h3>
+                            <p>📅 <strong>Horário Reservado: ${time}</strong></p>
+                            <p>💰 Total: R$ ${total}</p>
+                        </div>
+                        <div class="status">Confirmado</div>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

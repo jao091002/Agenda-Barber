@@ -6,6 +6,44 @@
 <title>Selecionar Serviço - Agenda Barber</title>
 
 <style>
+/* Estilos do novo botão sem mexer no original */
+.btn-agenda-topo {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(20,20,20,0.9);
+    border: 1px solid #ff1744;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+    z-index: 9999;
+}
+.btn-agenda-topo:hover {
+    background: #ff1744;
+    box-shadow: 0 0 15px rgba(255, 23, 68, 0.5);
+}
+.icon-cal {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #fff;
+    position: relative;
+}
+.icon-cal::after {
+    content: '';
+    position: absolute;
+    top: -4px; left: 1px;
+    width: 2px; height: 3px;
+    background: #fff;
+    box-shadow: 6px 0 0 #fff;
+}
+
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
     font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
@@ -97,6 +135,11 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 </head>
 
 <body>
+
+<a href="meus_agendamentos.html" class="btn-agenda-topo">
+    <div class="icon-cal"></div>
+    Meus Agendamentos
+</a>
 
 <div class="container">
 
